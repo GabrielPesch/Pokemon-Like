@@ -1,13 +1,60 @@
 const canvas = document.querySelector("canvas");
 const context = canvas.getContext("2d");
+const NUMBER_OF_SQUARES_IN_A_ROW = 64;
 
 canvas.width = 1024;
 canvas.height = 576;
 
-context.fillRect(0, 0, canvas.width, canvas.height);
+const collisionsMap = [];
+for (
+  let index = 0;
+  index < collisions.length;
+  index += NUMBER_OF_SQUARES_IN_A_ROW
+) {
+  collisionsMap.push(
+    collisions.slice(index, NUMBER_OF_SQUARES_IN_A_ROW + index)
+  );
+}
+
+class Boundary {
+  static width = 64;
+  static heigth = 64;
+
+  constructor({ position }) {
+    this.position = position;
+    this.width = 64;
+    this.height = 64;
+  }
+  draw() {
+    context.fillStyle = "red";
+    context.fillRect(this.position.x, this.position.y, this.width, this.height);
+  }
+}
+
+const boundaries = [];
+const offset = {
+  x: -1060,
+  y: -700,
+}
+
+collisionsMap.forEach((row, yIndex) => {
+  row.forEach((currentSQM, xIndex) => {
+    //The value of a solidBlock in collision.js (data) is equal to 1441
+    if (currentSQM === 1441)
+      boundaries.push(
+        new Boundary({
+          position: {
+            x: xIndex * Boundary.width + offset.x,
+            y: yIndex * Boundary.heigth + offset.y,
+          },
+        })
+      );
+  });
+});
+
 
 const backgroundImage = new Image();
-backgroundImage.src = "./game_assets/Map/pokemonLikeMap.png";
+backgroundImage.src = "./game_assets/Map/Map.png";
 
 const playerImage = new Image();
 playerImage.src = "./game_assets/Character/walkingDown.png";
@@ -23,10 +70,12 @@ class Sprite {
   }
 }
 
+
+
 const background = new Sprite({
   position: {
-    x: -300,
-    y: -1150,
+    x: offset.x,
+    y: offset.y
   },
   image: backgroundImage,
 });
@@ -49,6 +98,9 @@ const keys = {
 function animate() {
   window.requestAnimationFrame(animate);
   background.draw();
+  boundaries.forEach(boundarie => {
+    boundarie.draw();
+  })
   context.drawImage(
     playerImage,
     0,
